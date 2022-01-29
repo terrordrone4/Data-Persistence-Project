@@ -10,18 +10,22 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    [SerializeField] Text highScoreDisplay;
+    [SerializeField] Text ScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
+    private string curr_plyrName;
+    int highScore;
 
-    
     // Start is called before the first frame update
     void Start()
     {
+        curr_plyrName = DataPersitance.Instance.curr_plyrName;
+        highScore = DataPersitance.Instance.GetHighScore(curr_plyrName);
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +40,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        highScoreDisplay.text = $"Best Score : {curr_plyrName} : {highScore}";
     }
 
     private void Update()
@@ -65,6 +71,12 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
+
+        if (highScore < m_Points)
+        {            
+            DataPersitance.Instance.saveScore(curr_plyrName, m_Points);
+            highScoreDisplay.text = $"Best Score : {curr_plyrName} : {m_Points}";
+        }
         ScoreText.text = $"Score : {m_Points}";
     }
 
